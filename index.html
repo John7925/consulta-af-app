@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#9F2241">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Consulta AF">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>Consulta Rápida de Activo Fijo</title>
+  <style>
+    :root{--vino:#9F2241;--vino2:#74172E;--arena:#BC955C;--fondo:#F5F5F3;--texto:#253238}
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--fondo);font-family:Arial,Helvetica,sans-serif}
+    #appFrame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff}
+    #splash{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:24px;
+      background:radial-gradient(circle at 50% 30%,#fff 0%,#F4F2EE 70%,#ECEAE6 100%);
+      transition:opacity .28s ease,visibility .28s ease}
+    #splash.oculto{opacity:0;visibility:hidden;pointer-events:none}
+    .splash-card{text-align:center;max-width:360px}
+    .app-icon{width:152px;height:152px;border-radius:38px;display:block;margin:0 auto 22px;
+      box-shadow:0 24px 50px rgba(116,23,46,.22)}
+    h1{margin:0;color:var(--texto);font-size:25px;line-height:1.15}
+    p{margin:8px 0 0;color:#6B767A;font-size:12px}
+    .loader{width:42px;height:4px;margin:22px auto 0;border-radius:999px;background:#E0D4C4;overflow:hidden}
+    .loader::after{content:"";display:block;width:50%;height:100%;border-radius:inherit;background:var(--vino);animation:carga 1s infinite ease-in-out}
+    @keyframes carga{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+    #fallback{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:9;display:none;
+      padding:12px;border-radius:12px;background:#FFF8E9;border:1px solid #E4C998;color:#66512F;font-size:11px;line-height:1.4;
+      box-shadow:0 10px 30px rgba(0,0,0,.10)}
+    #fallback.visible{display:block}
+    #fallback a{color:var(--vino);font-weight:900}
+  </style>
+</head>
+<body>
+  <iframe
+    id="appFrame"
+    src="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec"
+    title="Consulta Rápida de Activo Fijo"
+    allow="camera; microphone; clipboard-read; clipboard-write"
+    referrerpolicy="strict-origin-when-cross-origin">
+  </iframe>
+
+  <div id="splash">
+    <div class="splash-card">
+      <img class="app-icon" src="icon-512.png" alt="Consulta Rápida">
+      <h1>Consulta Rápida<br>de Activo Fijo</h1>
+      <p>Abriendo aplicación…</p>
+      <div class="loader" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div id="fallback">
+    Si la aplicación no se muestra correctamente en este dispositivo,
+    <a href="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec" target="_top" rel="noopener">abrir la versión web oficial</a>.
+  </div>
+
+  <script>
+    const splash = document.getElementById('splash');
+    const frame = document.getElementById('appFrame');
+    const fallback = document.getElementById('fallback');
+
+    frame.addEventListener('load', () => {
+      setTimeout(() => splash.classList.add('oculto'), 550);
+    });
+
+    setTimeout(() => {
+      splash.classList.add('oculto');
+      fallback.classList.add('visible');
+    }, 9000);
+
+    window.addEventListener('online', () => fallback.classList.remove('visible'));
+    window.addEventListener('offline', () => fallback.classList.add('visible'));
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
