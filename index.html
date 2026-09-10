@@ -8,79 +8,488 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Consulta AF">
+
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
   <title>Consulta Rápida de Activo Fijo</title>
+
   <style>
-    :root{--vino:#9F2241;--vino2:#74172E;--arena:#BC955C;--fondo:#F5F5F3;--texto:#253238}
+    :root{
+      --vino:#9F2241;
+      --arena:#BC955C;
+      --fondo:#F4F5F4;
+      --superficie:#FFFFFF;
+      --texto:#243238;
+      --texto-suave:#647278;
+      --borde:#D9E0E2;
+      --petroleo:#315F64;
+      --sombra:0 20px 55px rgba(25,43,49,.12);
+    }
+
     *{box-sizing:border-box}
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--fondo);font-family:Arial,Helvetica,sans-serif}
-    #appFrame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff}
-    #splash{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:24px;
-      background:radial-gradient(circle at 50% 30%,#fff 0%,#F4F2EE 70%,#ECEAE6 100%);
-      transition:opacity .28s ease,visibility .28s ease}
+    html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;color:var(--texto);background:var(--fondo)}
+    body.modo-app{height:100vh;overflow:hidden}
+    button,a{font:inherit;-webkit-tap-highlight-color:transparent}
+    .oculto{display:none!important}
+
+    #instalador{
+      min-height:100vh;
+      padding:max(24px,env(safe-area-inset-top)) 20px max(26px,env(safe-area-inset-bottom));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(circle at 50% 8%,rgba(188,149,92,.12),transparent 26rem),
+        linear-gradient(180deg,#FBFBFA 0%,#F0F2F2 100%);
+    }
+
+    .tarjeta-instalacion{
+      width:min(100%,520px);
+      padding:31px 26px 25px;
+      border:1px solid var(--borde);
+      border-radius:25px;
+      background:var(--superficie);
+      box-shadow:var(--sombra);
+      text-align:center;
+    }
+
+    .icono-grande{
+      width:142px;
+      height:142px;
+      display:block;
+      margin:0 auto 20px;
+      border-radius:35px;
+      box-shadow:0 20px 42px rgba(116,23,46,.22);
+    }
+
+    .etiqueta{margin-bottom:8px;color:var(--arena);font-size:10px;font-weight:900;letter-spacing:1.4px}
+    .tarjeta-instalacion h1{margin:0;font-size:clamp(29px,7vw,39px);line-height:1.05;letter-spacing:-.6px}
+    .version{margin-top:8px;color:var(--vino);font-size:10px;font-weight:900;letter-spacing:.8px}
+    .descripcion{max-width:410px;margin:17px auto 0;color:var(--texto-suave);font-size:13px;line-height:1.55}
+
+    .mensaje-principal{
+      margin:20px 0 0;
+      padding:11px 13px;
+      border-radius:11px;
+      color:#526168;
+      background:#F5F7F7;
+      border:1px solid #E1E6E7;
+      font-size:11px;
+      line-height:1.5;
+    }
+
+    .acciones{display:grid;gap:9px;margin-top:18px}
+    .btn{
+      min-height:49px;
+      border-radius:12px;
+      border:1px solid transparent;
+      padding:11px 15px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.35px;
+      cursor:pointer;
+    }
+    .btn-principal{
+      color:#FFF;
+      background:linear-gradient(180deg,#B02B4C,var(--vino));
+      border-color:var(--vino);
+      box-shadow:0 10px 22px rgba(159,34,65,.18);
+    }
+    .btn-secundario{color:#5D696E;background:#FFF;border-color:var(--borde)}
+
+    .instrucciones{
+      margin-top:17px;
+      padding:15px;
+      border:1px solid #E1E5E6;
+      border-radius:13px;
+      background:#FAFBFB;
+      text-align:left;
+    }
+    .instrucciones strong{display:block;margin-bottom:7px;color:var(--petroleo);font-size:11px}
+    .instrucciones ol{margin:0;padding-left:20px;color:var(--texto-suave);font-size:11px;line-height:1.65}
+    .nota{margin-top:16px;color:#7A8589;font-size:10px;line-height:1.45}
+
+    #app{position:fixed;inset:0;background:#FFF}
+    #appFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#FFF}
+
+    #splash{
+      position:absolute;
+      inset:0;
+      z-index:20;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:radial-gradient(circle at 50% 28%,#FFF 0%,#F4F2EE 70%,#ECEAE6 100%);
+      transition:opacity .28s ease,visibility .28s ease;
+    }
     #splash.oculto{opacity:0;visibility:hidden;pointer-events:none}
-    .splash-card{text-align:center;max-width:360px}
-    .app-icon{width:152px;height:152px;border-radius:38px;display:block;margin:0 auto 22px;
-      box-shadow:0 24px 50px rgba(116,23,46,.22)}
-    h1{margin:0;color:var(--texto);font-size:25px;line-height:1.15}
-    p{margin:8px 0 0;color:#6B767A;font-size:12px}
-    .loader{width:42px;height:4px;margin:22px auto 0;border-radius:999px;background:#E0D4C4;overflow:hidden}
-    .loader::after{content:"";display:block;width:50%;height:100%;border-radius:inherit;background:var(--vino);animation:carga 1s infinite ease-in-out}
-    @keyframes carga{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
-    #fallback{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:9;display:none;
-      padding:12px;border-radius:12px;background:#FFF8E9;border:1px solid #E4C998;color:#66512F;font-size:11px;line-height:1.4;
-      box-shadow:0 10px 30px rgba(0,0,0,.10)}
-    #fallback.visible{display:block}
-    #fallback a{color:var(--vino);font-weight:900}
+    .splash-card{text-align:center}
+    .splash-icon{
+      width:150px;
+      height:150px;
+      display:block;
+      margin:0 auto 21px;
+      border-radius:37px;
+      box-shadow:0 24px 50px rgba(116,23,46,.22);
+    }
+    .splash-card h2{margin:0;color:var(--texto);font-size:25px;line-height:1.12}
+    .splash-card p{margin:8px 0 0;color:var(--texto-suave);font-size:11px}
+    .loader{width:44px;height:4px;margin:21px auto 0;border-radius:999px;overflow:hidden;background:#DED3C4}
+    .loader::after{content:"";display:block;width:50%;height:100%;border-radius:inherit;background:var(--vino);animation:cargando 1s infinite ease-in-out}
+    @keyframes cargando{from{transform:translateX(-100%)}to{transform:translateX(200%)}}
+
+    #avisoApp{
+      position:absolute;
+      left:12px;
+      right:12px;
+      bottom:calc(12px + env(safe-area-inset-bottom));
+      z-index:19;
+      display:none;
+      padding:12px 13px;
+      border:1px solid #E5CFA8;
+      border-radius:11px;
+      color:#685438;
+      background:#FFF8E9;
+      font-size:11px;
+      line-height:1.45;
+      box-shadow:0 10px 28px rgba(0,0,0,.10);
+    }
+    #avisoApp.visible{display:block}
+    #avisoApp a{color:var(--vino);font-weight:900}
+
+    @media(max-width:560px){
+      #instalador{padding-left:12px;padding-right:12px}
+      .tarjeta-instalacion{padding:25px 17px 20px;border-radius:20px}
+      .icono-grande{width:126px;height:126px;border-radius:31px}
+    }
   </style>
 </head>
+
 <body>
-  <iframe
-    id="appFrame"
-    src="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec"
-    title="Consulta Rápida de Activo Fijo"
-    allow="camera; microphone; clipboard-read; clipboard-write"
-    referrerpolicy="strict-origin-when-cross-origin">
-  </iframe>
 
-  <div id="splash">
-    <div class="splash-card">
-      <img class="app-icon" src="icon-512.png" alt="Consulta Rápida">
+  <main id="instalador" class="oculto">
+    <section class="tarjeta-instalacion">
+
+      <img class="icono-grande" src="icon-512.png" alt="Icono Consulta AF">
+
+      <div class="etiqueta">APLICACIÓN DE ACTIVO FIJO</div>
+
       <h1>Consulta Rápida<br>de Activo Fijo</h1>
-      <p>Abriendo aplicación…</p>
-      <div class="loader" aria-hidden="true"></div>
-    </div>
-  </div>
 
-  <div id="fallback">
-    Si la aplicación no se muestra correctamente en este dispositivo,
-    <a href="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec" target="_top" rel="noopener">abrir la versión web oficial</a>.
-  </div>
+      <div class="version">APP v0.2 · SISTEMA v0.2.3 OFICIAL</div>
+
+      <p class="descripcion">
+        Instala este acceso para abrir Consulta Rápida desde su propio icono,
+        en modo aplicación y sin la barra normal de direcciones del navegador.
+      </p>
+
+      <div id="mensajePlataforma" class="mensaje-principal">
+        Detectando dispositivo…
+      </div>
+
+      <div class="acciones">
+        <button id="btnInstalar" class="btn btn-principal" type="button">
+          INSTALAR CONSULTA AF
+        </button>
+
+        <button id="btnInstrucciones" class="btn btn-secundario" type="button">
+          VER INSTRUCCIONES
+        </button>
+
+        <a id="btnNavegador" class="btn btn-secundario" href="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec" rel="noopener">
+          ABRIR SOLO ESTA VEZ EN NAVEGADOR
+        </a>
+      </div>
+
+      <div id="panelInstrucciones" class="instrucciones oculto">
+        <strong id="tituloInstrucciones">Cómo instalar</strong>
+        <ol id="listaInstrucciones"></ol>
+      </div>
+
+      <div class="nota">
+        Después de instalarla, utiliza el nuevo icono <strong>Consulta AF</strong>.
+        Si vuelves a entrar mediante esta liga, seguirás viendo la dirección porque estarás usando el navegador.
+      </div>
+
+    </section>
+  </main>
+
+
+  <section id="app" class="oculto">
+
+    <iframe
+      id="appFrame"
+      title="Consulta Rápida de Activo Fijo"
+      allow="camera; microphone; clipboard-read; clipboard-write"
+      referrerpolicy="strict-origin-when-cross-origin">
+    </iframe>
+
+    <div id="splash">
+      <div class="splash-card">
+        <img class="splash-icon" src="icon-512.png" alt="Consulta AF">
+        <h2>Consulta Rápida<br>de Activo Fijo</h2>
+        <p>Abriendo aplicación…</p>
+        <div class="loader" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div id="avisoApp">
+      No fue posible cargar la aplicación.
+      <a href="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec" target="_top" rel="noopener">
+        Abrir versión web oficial
+      </a>
+    </div>
+
+  </section>
+
 
   <script>
-    const splash = document.getElementById('splash');
-    const frame = document.getElementById('appFrame');
-    const fallback = document.getElementById('fallback');
+    'use strict';
 
-    frame.addEventListener('load', () => {
-      setTimeout(() => splash.classList.add('oculto'), 550);
+    const URL_CONSULTA = 'https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec';
+
+    let eventoInstalacion = null;
+    let plataforma = 'windows';
+
+
+    document.addEventListener('DOMContentLoaded', iniciar);
+
+
+    window.addEventListener('beforeinstallprompt', function(evento) {
+      evento.preventDefault();
+      eventoInstalacion = evento;
+      actualizarBotonInstalar();
     });
 
-    setTimeout(() => {
-      splash.classList.add('oculto');
-      fallback.classList.add('visible');
-    }, 9000);
 
-    window.addEventListener('online', () => fallback.classList.remove('visible'));
-    window.addEventListener('offline', () => fallback.classList.add('visible'));
+    window.addEventListener('appinstalled', function() {
+      eventoInstalacion = null;
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      const boton = document.getElementById('btnInstalar');
+      if (boton) {
+        boton.textContent = 'APLICACIÓN INSTALADA';
+      }
+
+      const mensaje = document.getElementById('mensajePlataforma');
+      if (mensaje) {
+        mensaje.textContent =
+          'Instalación completada. Ahora abre Consulta AF desde su nuevo icono.';
+      }
+    });
+
+
+    function iniciar() {
+      registrarServiceWorker();
+
+      if (estaEnModoApp()) {
+        iniciarAplicacion();
+      } else {
+        iniciarInstalador();
+      }
+    }
+
+
+    function estaEnModoApp() {
+      const standalone =
+        window.matchMedia &&
+        window.matchMedia('(display-mode: standalone)').matches;
+
+      const standaloneIOS =
+        window.navigator.standalone === true;
+
+      return !!(standalone || standaloneIOS);
+    }
+
+
+    function iniciarAplicacion() {
+      document.body.classList.add('modo-app');
+
+      document.getElementById('instalador').classList.add('oculto');
+      document.getElementById('app').classList.remove('oculto');
+
+      const frame = document.getElementById('appFrame');
+      const splash = document.getElementById('splash');
+      const aviso = document.getElementById('avisoApp');
+
+      frame.addEventListener('load', function() {
+        setTimeout(function() {
+          splash.classList.add('oculto');
+        }, 500);
+      });
+
+      frame.src = URL_CONSULTA;
+
+      setTimeout(function() {
+        if (!splash.classList.contains('oculto')) {
+          splash.classList.add('oculto');
+          aviso.classList.add('visible');
+        }
+      }, 10000);
+    }
+
+
+    function iniciarInstalador() {
+      document.getElementById('app').classList.add('oculto');
+      document.getElementById('instalador').classList.remove('oculto');
+
+      plataforma = detectarPlataforma();
+      configurarTextos(plataforma);
+
+      document.getElementById('btnInstalar')
+        .addEventListener('click', solicitarInstalacion);
+
+      document.getElementById('btnInstrucciones')
+        .addEventListener('click', mostrarOcultarInstrucciones);
+
+      actualizarBotonInstalar();
+    }
+
+
+    function detectarPlataforma() {
+      const ua = navigator.userAgent || '';
+      const platform = navigator.platform || '';
+
+      if (
+        /iPhone|iPad|iPod/i.test(ua) ||
+        (platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+      ) {
+        return 'ios';
+      }
+
+      if (/Android/i.test(ua)) {
+        return 'android';
+      }
+
+      return 'windows';
+    }
+
+
+    function configurarTextos(tipo) {
+      const mensaje = document.getElementById('mensajePlataforma');
+      const titulo = document.getElementById('tituloInstrucciones');
+      const lista = document.getElementById('listaInstrucciones');
+
+      let pasos = [];
+
+      if (tipo === 'ios') {
+        mensaje.textContent =
+          'iPhone / iPad detectado. En iOS la instalación se realiza desde Safari.';
+        titulo.textContent = 'Instalación en iPhone / iPad';
+        pasos = [
+          'Abre esta liga en Safari.',
+          'Pulsa el botón Compartir.',
+          'Selecciona “Añadir a pantalla de inicio”.',
+          'Confirma y después abre Consulta AF desde el nuevo icono.'
+        ];
+      } else if (tipo === 'android') {
+        mensaje.textContent =
+          'Android detectado. Chrome puede instalar Consulta AF como aplicación.';
+        titulo.textContent = 'Instalación en Android';
+        pasos = [
+          'Abre esta liga en Chrome.',
+          'Pulsa INSTALAR CONSULTA AF cuando se habilite.',
+          'Si no aparece, abre el menú ⋮ y usa “Instalar aplicación” o “Añadir a pantalla de inicio”.',
+          'Después abre Consulta AF desde su nuevo icono.'
+        ];
+      } else {
+        mensaje.textContent =
+          'Windows detectado. Edge o Chrome pueden instalar Consulta AF en una ventana independiente.';
+        titulo.textContent = 'Instalación en Windows';
+        pasos = [
+          'Abre esta liga en Edge o Chrome.',
+          'Pulsa INSTALAR CONSULTA AF cuando se habilite.',
+          'Si no aparece, usa el menú del navegador y selecciona “Instalar este sitio como aplicación”.',
+          'Después abre Consulta AF desde Inicio, Escritorio o barra de tareas.'
+        ];
+      }
+
+      lista.innerHTML = '';
+
+      pasos.forEach(function(texto) {
+        const item = document.createElement('li');
+        item.textContent = texto;
+        lista.appendChild(item);
+      });
+    }
+
+
+    function actualizarBotonInstalar() {
+      const boton = document.getElementById('btnInstalar');
+      if (!boton) return;
+
+      if (plataforma === 'ios') {
+        boton.textContent = 'CÓMO INSTALAR EN iPHONE / iPAD';
+        return;
+      }
+
+      if (eventoInstalacion) {
+        boton.textContent = 'INSTALAR CONSULTA AF';
+      } else {
+        boton.textContent = 'MOSTRAR OPCIONES DE INSTALACIÓN';
+      }
+    }
+
+
+    async function solicitarInstalacion() {
+      if (plataforma === 'ios') {
+        abrirInstrucciones();
+        return;
+      }
+
+      if (!eventoInstalacion) {
+        abrirInstrucciones();
+        return;
+      }
+
+      eventoInstalacion.prompt();
+
+      try {
+        const resultado = await eventoInstalacion.userChoice;
+
+        if (resultado && resultado.outcome === 'accepted') {
+          document.getElementById('mensajePlataforma').textContent =
+            'Instalación aceptada. Cuando termine, abre Consulta AF desde su nuevo icono.';
+        }
+      } catch (error) {
+        abrirInstrucciones();
+      }
+
+      eventoInstalacion = null;
+      actualizarBotonInstalar();
+    }
+
+
+    function mostrarOcultarInstrucciones() {
+      document.getElementById('panelInstrucciones')
+        .classList.toggle('oculto');
+    }
+
+
+    function abrirInstrucciones() {
+      document.getElementById('panelInstrucciones')
+        .classList.remove('oculto');
+    }
+
+
+    function registrarServiceWorker() {
+      if (!('serviceWorker' in navigator)) return;
+
+      window.addEventListener('load', function() {
+        navigator.serviceWorker
+          .register('./sw.js')
+          .catch(function() {
+            // Puede seguir operando como página aunque falle el registro.
+          });
       });
     }
   </script>
+
 </body>
 </html>
