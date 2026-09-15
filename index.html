@@ -2,51 +2,115 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
+
   <meta name="theme-color" content="#9F2241">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Consulta AF">
 
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icon-192.png" sizes="192x192">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="canonical" href="https://john7925.github.io/consulta-af-app/">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 
   <title>Consulta Rápida de Activo Fijo</title>
+
+  <!--
+    consulta-af-app
+    index.html v0.3.0
+    Instalador PWA multiplataforma + gestión de reinstalación
+  -->
 
   <style>
     :root{
       --vino:#9F2241;
+      --vino-oscuro:#7D1932;
       --arena:#BC955C;
+      --arena-suave:#F8F0E4;
       --fondo:#F4F5F4;
       --superficie:#FFFFFF;
       --texto:#243238;
       --texto-suave:#647278;
       --borde:#D9E0E2;
       --petroleo:#315F64;
+      --petroleo-suave:#EDF5F5;
+      --ok:#2F6B48;
+      --ok-fondo:#EEF7F1;
+      --aviso:#7A5C1C;
+      --aviso-fondo:#FFF8E8;
+      --error:#9A3D45;
+      --error-fondo:#FFF0F1;
       --sombra:0 20px 55px rgba(25,43,49,.12);
     }
 
-    *{box-sizing:border-box}
-    html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;color:var(--texto);background:var(--fondo)}
-    body.modo-app{height:100vh;overflow:hidden}
-    button,a{font:inherit;-webkit-tap-highlight-color:transparent}
-    .oculto{display:none!important}
+    *{
+      box-sizing:border-box;
+    }
+
+    html,
+    body{
+      margin:0;
+      width:100%;
+      min-height:100%;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--texto);
+      background:var(--fondo);
+    }
+
+    body.modo-app{
+      height:100vh;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    button,
+    a{
+      font:inherit;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    button{
+      cursor:pointer;
+    }
+
+    button:disabled{
+      cursor:not-allowed;
+      opacity:.62;
+    }
+
+    .oculto{
+      display:none!important;
+    }
 
     #instalador{
       min-height:100vh;
-      padding:max(24px,env(safe-area-inset-top)) 20px max(26px,env(safe-area-inset-bottom));
+      padding:
+        max(24px,env(safe-area-inset-top))
+        20px
+        max(26px,env(safe-area-inset-bottom));
       display:flex;
       align-items:center;
       justify-content:center;
       background:
-        radial-gradient(circle at 50% 8%,rgba(188,149,92,.12),transparent 26rem),
-        linear-gradient(180deg,#FBFBFA 0%,#F0F2F2 100%);
+        radial-gradient(
+          circle at 50% 8%,
+          rgba(188,149,92,.12),
+          transparent 26rem
+        ),
+        linear-gradient(
+          180deg,
+          #FBFBFA 0%,
+          #F0F2F2 100%
+        );
     }
 
     .tarjeta-instalacion{
-      width:min(100%,520px);
+      width:min(100%,560px);
       padding:31px 26px 25px;
       border:1px solid var(--borde);
       border-radius:25px;
@@ -56,193 +120,500 @@
     }
 
     .icono-grande{
-      width:142px;
-      height:142px;
+      width:136px;
+      height:136px;
       display:block;
-      margin:0 auto 20px;
-      border-radius:35px;
-      box-shadow:0 20px 42px rgba(116,23,46,.22);
+      margin:0 auto 18px;
+      border-radius:32px;
+      box-shadow:0 12px 26px rgba(25,43,49,.13);
     }
 
-    .etiqueta{margin-bottom:8px;color:var(--arena);font-size:10px;font-weight:900;letter-spacing:1.4px}
-    .tarjeta-instalacion h1{margin:0;font-size:clamp(29px,7vw,39px);line-height:1.05;letter-spacing:-.6px}
-    .version{margin-top:8px;color:var(--vino);font-size:10px;font-weight:900;letter-spacing:.8px}
-    .descripcion{max-width:410px;margin:17px auto 0;color:var(--texto-suave);font-size:13px;line-height:1.55}
-
-    .mensaje-principal{
-      margin:20px 0 0;
-      padding:11px 13px;
-      border-radius:11px;
-      color:#526168;
-      background:#F5F7F7;
-      border:1px solid #E1E6E7;
+    .etiqueta{
+      margin-bottom:9px;
+      color:var(--vino);
       font-size:11px;
+      font-weight:900;
+      letter-spacing:1.2px;
+    }
+
+    h1{
+      margin:0;
+      color:var(--texto);
+      font-size:28px;
+      line-height:1.12;
+      letter-spacing:-.5px;
+    }
+
+    .version{
+      margin-top:10px;
+      color:var(--texto-suave);
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.3px;
+    }
+
+    .descripcion{
+      max-width:450px;
+      margin:17px auto 0;
+      color:var(--texto-suave);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .estado{
+      margin-top:18px;
+      padding:13px 14px;
+      border:1px solid var(--borde);
+      border-radius:12px;
+      background:#F7F8F8;
+      color:var(--texto-suave);
+      font-size:12px;
+      font-weight:700;
       line-height:1.5;
     }
 
-    .acciones{display:grid;gap:9px;margin-top:18px}
+    .estado.ok{
+      color:var(--ok);
+      background:var(--ok-fondo);
+      border-color:#B8D6C2;
+    }
+
+    .estado.aviso{
+      color:var(--aviso);
+      background:var(--aviso-fondo);
+      border-color:#E0CA91;
+    }
+
+    .estado.error{
+      color:var(--error);
+      background:var(--error-fondo);
+      border-color:#E0B6BA;
+    }
+
+    .acciones{
+      margin-top:14px;
+      display:grid;
+      gap:9px;
+    }
+
     .btn{
-      min-height:49px;
-      border-radius:12px;
-      border:1px solid transparent;
-      padding:11px 15px;
+      width:100%;
+      min-height:50px;
+      padding:12px 15px;
       display:flex;
       align-items:center;
       justify-content:center;
+      border-radius:11px;
       text-decoration:none;
       font-size:11px;
       font-weight:900;
       letter-spacing:.35px;
-      cursor:pointer;
+      transition:
+        transform .08s ease,
+        background .15s ease,
+        border-color .15s ease;
     }
+
+    .btn:active{
+      transform:scale(.992);
+    }
+
     .btn-principal{
       color:#FFF;
-      background:linear-gradient(180deg,#B02B4C,var(--vino));
-      border-color:var(--vino);
-      box-shadow:0 10px 22px rgba(159,34,65,.18);
+      background:var(--vino);
+      border:1px solid var(--vino);
     }
-    .btn-secundario{color:#5D696E;background:#FFF;border-color:var(--borde)}
 
-    .instrucciones{
-      margin-top:17px;
+    .btn-principal:hover:not(:disabled){
+      background:var(--vino-oscuro);
+      border-color:var(--vino-oscuro);
+    }
+
+    .btn-secundario{
+      color:var(--petroleo);
+      background:#FFF;
+      border:1px solid #BFCFD2;
+    }
+
+    .btn-gestion{
+      color:#6D5229;
+      background:var(--arena-suave);
+      border:1px solid #D7BF98;
+    }
+
+    .btn-pequeno{
+      min-height:43px;
+      padding:9px 12px;
+      font-size:10px;
+    }
+
+    .panel{
+      margin-top:14px;
       padding:15px;
-      border:1px solid #E1E5E6;
-      border-radius:13px;
-      background:#FAFBFB;
       text-align:left;
+      border:1px solid var(--borde);
+      border-radius:13px;
+      background:#FBFCFC;
     }
-    .instrucciones strong{display:block;margin-bottom:7px;color:var(--petroleo);font-size:11px}
-    .instrucciones ol{margin:0;padding-left:20px;color:var(--texto-suave);font-size:11px;line-height:1.65}
-    .nota{margin-top:16px;color:#7A8589;font-size:10px;line-height:1.45}
 
-    #app{position:fixed;inset:0;background:#FFF}
-    #appFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#FFF}
+    .panel h2{
+      margin:0 0 7px;
+      color:var(--petroleo);
+      font-size:13px;
+    }
+
+    .panel p{
+      margin:7px 0 0;
+      color:var(--texto-suave);
+      font-size:11px;
+      line-height:1.55;
+    }
+
+    .panel ol{
+      margin:10px 0 0;
+      padding-left:21px;
+      color:var(--texto);
+      font-size:11px;
+      line-height:1.6;
+    }
+
+    .panel li + li{
+      margin-top:5px;
+    }
+
+    .panel .subtitulo{
+      display:block;
+      margin-top:13px;
+      color:var(--vino);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.3px;
+    }
+
+    .nota{
+      margin-top:15px;
+      color:#78858A;
+      font-size:10px;
+      line-height:1.55;
+    }
+
+    .nota strong{
+      color:var(--texto);
+    }
+
+    .diagnostico{
+      margin-top:12px;
+      padding-top:11px;
+      border-top:1px dashed #CDD7DA;
+      color:#77858A;
+      font-size:9px;
+      line-height:1.5;
+      word-break:break-word;
+    }
+
+    #app{
+      position:fixed;
+      inset:0;
+      background:#FFF;
+    }
+
+    #appFrame{
+      width:100%;
+      height:100%;
+      border:0;
+      background:#FFF;
+    }
 
     #splash{
       position:absolute;
       inset:0;
-      z-index:20;
+      z-index:10;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:24px;
-      background:radial-gradient(circle at 50% 28%,#FFF 0%,#F4F2EE 70%,#ECEAE6 100%);
-      transition:opacity .28s ease,visibility .28s ease;
+      padding:20px;
+      background:#F4F5F4;
     }
-    #splash.oculto{opacity:0;visibility:hidden;pointer-events:none}
-    .splash-card{text-align:center}
+
+    .splash-card{
+      width:min(100%,390px);
+      padding:28px 20px;
+      text-align:center;
+      background:#FFF;
+      border:1px solid var(--borde);
+      border-radius:22px;
+      box-shadow:var(--sombra);
+    }
+
     .splash-icon{
-      width:150px;
-      height:150px;
-      display:block;
-      margin:0 auto 21px;
-      border-radius:37px;
-      box-shadow:0 24px 50px rgba(116,23,46,.22);
+      width:104px;
+      height:104px;
+      border-radius:25px;
     }
-    .splash-card h2{margin:0;color:var(--texto);font-size:25px;line-height:1.12}
-    .splash-card p{margin:8px 0 0;color:var(--texto-suave);font-size:11px}
-    .loader{width:44px;height:4px;margin:21px auto 0;border-radius:999px;overflow:hidden;background:#DED3C4}
-    .loader::after{content:"";display:block;width:50%;height:100%;border-radius:inherit;background:var(--vino);animation:cargando 1s infinite ease-in-out}
-    @keyframes cargando{from{transform:translateX(-100%)}to{transform:translateX(200%)}}
+
+    .splash-card h2{
+      margin:14px 0 7px;
+      font-size:22px;
+      line-height:1.15;
+    }
+
+    .splash-card p{
+      margin:0;
+      color:var(--texto-suave);
+      font-size:12px;
+    }
+
+    .loader{
+      width:28px;
+      height:28px;
+      margin:16px auto 0;
+      border:3px solid #E0E5E6;
+      border-top-color:var(--vino);
+      border-radius:50%;
+      animation:girar .85s linear infinite;
+    }
+
+    @keyframes girar{
+      to{
+        transform:rotate(360deg);
+      }
+    }
 
     #avisoApp{
       position:absolute;
-      left:12px;
-      right:12px;
-      bottom:calc(12px + env(safe-area-inset-bottom));
-      z-index:19;
+      left:14px;
+      right:14px;
+      bottom:max(14px,env(safe-area-inset-bottom));
+      z-index:11;
       display:none;
-      padding:12px 13px;
-      border:1px solid #E5CFA8;
-      border-radius:11px;
-      color:#685438;
-      background:#FFF8E9;
+      padding:12px;
+      color:var(--error);
+      background:var(--error-fondo);
+      border:1px solid #E0B6BA;
+      border-radius:10px;
+      text-align:center;
       font-size:11px;
-      line-height:1.45;
-      box-shadow:0 10px 28px rgba(0,0,0,.10);
+      font-weight:700;
     }
-    #avisoApp.visible{display:block}
-    #avisoApp a{color:var(--vino);font-weight:900}
 
-    @media(max-width:560px){
-      #instalador{padding-left:12px;padding-right:12px}
-      .tarjeta-instalacion{padding:25px 17px 20px;border-radius:20px}
-      .icono-grande{width:126px;height:126px;border-radius:31px}
+    #avisoApp a{
+      color:var(--vino);
+      font-weight:900;
+    }
+
+    @media(max-width:600px){
+      #instalador{
+        padding-left:12px;
+        padding-right:12px;
+      }
+
+      .tarjeta-instalacion{
+        padding:25px 17px 20px;
+        border-radius:20px;
+      }
+
+      .icono-grande{
+        width:122px;
+        height:122px;
+        border-radius:29px;
+      }
+
+      h1{
+        font-size:25px;
+      }
+
+      .btn{
+        min-height:52px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <main id="instalador" class="oculto">
+  <main
+    id="instalador"
+    class="oculto"
+  >
     <section class="tarjeta-instalacion">
 
-      <img class="icono-grande" src="icon-512.png" alt="Icono Consulta AF">
+      <img
+        class="icono-grande"
+        src="./icon-512.png"
+        alt="Icono Consulta AF"
+      >
 
-      <div class="etiqueta">APLICACIÓN DE ACTIVO FIJO</div>
+      <div class="etiqueta">
+        APLICACIÓN DE ACTIVO FIJO
+      </div>
 
-      <h1>Consulta Rápida<br>de Activo Fijo</h1>
+      <h1>
+        Consulta Rápida<br>
+        de Activo Fijo
+      </h1>
 
-      <div class="version">APP v0.2 · SISTEMA v0.2.3 OFICIAL</div>
+      <div class="version">
+        APP v0.3 · INSTALADOR MULTIPLATAFORMA
+      </div>
 
       <p class="descripcion">
         Instala este acceso para abrir Consulta Rápida desde su propio icono,
         en modo aplicación y sin la barra normal de direcciones del navegador.
       </p>
 
-      <div id="mensajePlataforma" class="mensaje-principal">
-        Detectando dispositivo…
+      <div
+        id="mensajePlataforma"
+        class="estado"
+      >
+        Verificando dispositivo y opciones de instalación…
       </div>
 
       <div class="acciones">
-        <button id="btnInstalar" class="btn btn-principal" type="button">
+
+        <button
+          id="btnInstalar"
+          class="btn btn-principal"
+          type="button"
+        >
           INSTALAR CONSULTA AF
         </button>
 
-        <button id="btnInstrucciones" class="btn btn-secundario" type="button">
+        <button
+          id="btnInstrucciones"
+          class="btn btn-secundario"
+          type="button"
+        >
           VER INSTRUCCIONES
         </button>
 
-        <a id="btnNavegador" class="btn btn-secundario" href="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec" rel="noopener">
+        <button
+          id="btnGestionar"
+          class="btn btn-gestion"
+          type="button"
+        >
+          QUITAR / REINSTALAR APP
+        </button>
+
+        <a
+          id="btnNavegador"
+          class="btn btn-secundario"
+          href="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec"
+          rel="noopener"
+        >
           ABRIR SOLO ESTA VEZ EN NAVEGADOR
         </a>
+
       </div>
 
-      <div id="panelInstrucciones" class="instrucciones oculto">
-        <strong id="tituloInstrucciones">Cómo instalar</strong>
+      <div
+        id="panelInstrucciones"
+        class="panel oculto"
+      >
+        <h2 id="tituloInstrucciones">
+          Cómo instalar
+        </h2>
+
         <ol id="listaInstrucciones"></ol>
+
+        <p id="notaInstrucciones"></p>
+      </div>
+
+      <div
+        id="panelGestion"
+        class="panel oculto"
+      >
+        <h2>
+          Quitar y volver a instalar
+        </h2>
+
+        <p>
+          Por seguridad, una página web no puede desinstalarse a sí misma.
+          El retiro del icono o de la app debe confirmarse desde el navegador
+          o desde el sistema operativo.
+        </p>
+
+        <span class="subtitulo">
+          PASOS PARA ESTE DISPOSITIVO
+        </span>
+
+        <ol id="listaDesinstalacion"></ol>
+
+        <button
+          id="btnPrepararReinstalacion"
+          class="btn btn-secundario btn-pequeno"
+          type="button"
+          style="margin-top:12px;"
+        >
+          YA LA QUITÉ — PREPARAR REINSTALACIÓN
+        </button>
+
+        <p>
+          Este botón solo limpia el indicador local de instalación y vuelve a
+          verificar el navegador. No desinstala aplicaciones por sí mismo.
+        </p>
       </div>
 
       <div class="nota">
-        Después de instalarla, utiliza el nuevo icono <strong>Consulta AF</strong>.
-        Si vuelves a entrar mediante esta liga, seguirás viendo la dirección porque estarás usando el navegador.
+        <strong>Importante:</strong>
+        no uses una ventana de incógnito o privada para instalar.
+        Después de instalar, abre la aplicación desde el nuevo icono
+        <strong>Consulta AF</strong>.
       </div>
+
+      <div
+        id="diagnostico"
+        class="diagnostico"
+      ></div>
 
     </section>
   </main>
 
 
-  <section id="app" class="oculto">
+  <section
+    id="app"
+    class="oculto"
+  >
 
     <iframe
       id="appFrame"
       title="Consulta Rápida de Activo Fijo"
       allow="camera; microphone; clipboard-read; clipboard-write"
-      referrerpolicy="strict-origin-when-cross-origin">
-    </iframe>
+      referrerpolicy="strict-origin-when-cross-origin"
+    ></iframe>
 
     <div id="splash">
       <div class="splash-card">
-        <img class="splash-icon" src="icon-512.png" alt="Consulta AF">
-        <h2>Consulta Rápida<br>de Activo Fijo</h2>
-        <p>Abriendo aplicación…</p>
-        <div class="loader" aria-hidden="true"></div>
+
+        <img
+          class="splash-icon"
+          src="./icon-512.png"
+          alt="Consulta AF"
+        >
+
+        <h2>
+          Consulta Rápida<br>
+          de Activo Fijo
+        </h2>
+
+        <p>
+          Abriendo aplicación…
+        </p>
+
+        <div
+          class="loader"
+          aria-hidden="true"
+        ></div>
+
       </div>
     </div>
 
     <div id="avisoApp">
       No fue posible cargar la aplicación.
-      <a href="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec" target="_top" rel="noopener">
+      <a
+        href="https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec"
+        target="_top"
+        rel="noopener"
+      >
         Abrir versión web oficial
       </a>
     </div>
@@ -253,242 +624,1220 @@
   <script>
     'use strict';
 
-    const URL_CONSULTA = 'https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec';
 
-    let eventoInstalacion = null;
-    let plataforma = 'windows';
+    // ======================================================
+    // CONFIGURACIÓN
+    // ======================================================
 
-
-    document.addEventListener('DOMContentLoaded', iniciar);
-
-
-    window.addEventListener('beforeinstallprompt', function(evento) {
-      evento.preventDefault();
-      eventoInstalacion = evento;
-      actualizarBotonInstalar();
-    });
+    const URL_CONSULTA =
+      'https://script.google.com/macros/s/AKfycbzywqXLw3l6hAkYjWAKJ5O19yNSf8aVumS3PUvv3bPq5bug0KdIqx8Bn77RZuLyhR0F/exec';
 
 
-    window.addEventListener('appinstalled', function() {
-      eventoInstalacion = null;
+    const CLAVE_INSTALADA =
+      'consulta_af_instalada_v1';
 
-      const boton = document.getElementById('btnInstalar');
-      if (boton) {
-        boton.textContent = 'APLICACIÓN INSTALADA';
+
+    let eventoInstalacion =
+      null;
+
+
+    let entorno = {
+      sistema:
+        'otro',
+
+      navegador:
+        'otro',
+
+      brave:
+        false,
+
+      ios:
+        false,
+
+      android:
+        false,
+
+      escritorio:
+        false
+    };
+
+
+    // ======================================================
+    // EVENTOS DE INSTALACIÓN
+    // ======================================================
+
+    window.addEventListener(
+      'beforeinstallprompt',
+      function(evento) {
+
+        evento.preventDefault();
+
+        eventoInstalacion =
+          evento;
+
+
+        try {
+
+          localStorage.removeItem(
+            CLAVE_INSTALADA
+          );
+        }
+        catch (error) {}
+
+
+        actualizarInterfazInstalacion();
       }
+    );
 
-      const mensaje = document.getElementById('mensajePlataforma');
-      if (mensaje) {
-        mensaje.textContent =
-          'Instalación completada. Ahora abre Consulta AF desde su nuevo icono.';
+
+    window.addEventListener(
+      'appinstalled',
+      function() {
+
+        eventoInstalacion =
+          null;
+
+
+        marcarInstalada();
+
+
+        const boton =
+          document.getElementById(
+            'btnInstalar'
+          );
+
+
+        if (boton) {
+
+          boton.textContent =
+            'APLICACIÓN INSTALADA';
+        }
+
+
+        mostrarEstado(
+          'Instalación completada. Abre Consulta AF desde el nuevo icono.',
+          'ok'
+        );
       }
-    });
+    );
 
 
-    function iniciar() {
+    document.addEventListener(
+      'DOMContentLoaded',
+      iniciar
+    );
+
+
+    // ======================================================
+    // INICIO
+    // ======================================================
+
+    async function iniciar() {
+
       registrarServiceWorker();
 
-      if (estaEnModoApp()) {
+
+      entorno =
+        await detectarEntorno();
+
+
+      if (
+        estaEnModoApp()
+      ) {
+
+        marcarInstalada();
+
         iniciarAplicacion();
-      } else {
-        iniciarInstalador();
+
+        return;
       }
+
+
+      iniciarInstalador();
+
+
+      // Algunos Chromium tardan un poco en emitir
+      // beforeinstallprompt. Revisión posterior.
+      setTimeout(
+        actualizarInterfazInstalacion,
+        1400
+      );
     }
 
 
     function estaEnModoApp() {
+
       const standalone =
-        window.matchMedia &&
-        window.matchMedia('(display-mode: standalone)').matches;
+        Boolean(
+          window.matchMedia &&
+          window
+            .matchMedia(
+              '(display-mode: standalone)'
+            )
+            .matches
+        );
+
+
+      const fullscreen =
+        Boolean(
+          window.matchMedia &&
+          window
+            .matchMedia(
+              '(display-mode: fullscreen)'
+            )
+            .matches
+        );
+
 
       const standaloneIOS =
-        window.navigator.standalone === true;
+        window.navigator.standalone ===
+        true;
 
-      return !!(standalone || standaloneIOS);
+
+      return Boolean(
+        standalone ||
+        fullscreen ||
+        standaloneIOS
+      );
     }
 
+
+    // ======================================================
+    // APLICACIÓN INSTALADA
+    // ======================================================
 
     function iniciarAplicacion() {
-      document.body.classList.add('modo-app');
 
-      document.getElementById('instalador').classList.add('oculto');
-      document.getElementById('app').classList.remove('oculto');
+      document.body.classList.add(
+        'modo-app'
+      );
 
-      const frame = document.getElementById('appFrame');
-      const splash = document.getElementById('splash');
-      const aviso = document.getElementById('avisoApp');
 
-      frame.addEventListener('load', function() {
-        setTimeout(function() {
-          splash.classList.add('oculto');
-        }, 500);
-      });
+      document
+        .getElementById(
+          'instalador'
+        )
+        .classList
+        .add(
+          'oculto'
+        );
 
-      frame.src = URL_CONSULTA;
 
-      setTimeout(function() {
-        if (!splash.classList.contains('oculto')) {
-          splash.classList.add('oculto');
-          aviso.classList.add('visible');
+      document
+        .getElementById(
+          'app'
+        )
+        .classList
+        .remove(
+          'oculto'
+        );
+
+
+      const frame =
+        document.getElementById(
+          'appFrame'
+        );
+
+
+      const splash =
+        document.getElementById(
+          'splash'
+        );
+
+
+      const aviso =
+        document.getElementById(
+          'avisoApp'
+        );
+
+
+      let cargaConfirmada =
+        false;
+
+
+      frame.addEventListener(
+        'load',
+        function() {
+
+          cargaConfirmada =
+            true;
+
+
+          setTimeout(
+            function() {
+
+              splash.classList.add(
+                'oculto'
+              );
+            },
+            350
+          );
         }
-      }, 10000);
+      );
+
+
+      frame.src =
+        URL_CONSULTA;
+
+
+      setTimeout(
+        function() {
+
+          if (
+            !cargaConfirmada
+          ) {
+
+            splash.classList.add(
+              'oculto'
+            );
+
+
+            aviso.style.display =
+              'block';
+          }
+        },
+        12000
+      );
     }
 
+
+    // ======================================================
+    // INSTALADOR
+    // ======================================================
 
     function iniciarInstalador() {
-      document.getElementById('app').classList.add('oculto');
-      document.getElementById('instalador').classList.remove('oculto');
 
-      plataforma = detectarPlataforma();
-      configurarTextos(plataforma);
+      document
+        .getElementById(
+          'app'
+        )
+        .classList
+        .add(
+          'oculto'
+        );
 
-      document.getElementById('btnInstalar')
-        .addEventListener('click', solicitarInstalacion);
 
-      document.getElementById('btnInstrucciones')
-        .addEventListener('click', mostrarOcultarInstrucciones);
+      document
+        .getElementById(
+          'instalador'
+        )
+        .classList
+        .remove(
+          'oculto'
+        );
 
-      actualizarBotonInstalar();
+
+      document
+        .getElementById(
+          'btnInstalar'
+        )
+        .addEventListener(
+          'click',
+          solicitarInstalacion
+        );
+
+
+      document
+        .getElementById(
+          'btnInstrucciones'
+        )
+        .addEventListener(
+          'click',
+          mostrarOcultarInstrucciones
+        );
+
+
+      document
+        .getElementById(
+          'btnGestionar'
+        )
+        .addEventListener(
+          'click',
+          mostrarOcultarGestion
+        );
+
+
+      document
+        .getElementById(
+          'btnPrepararReinstalacion'
+        )
+        .addEventListener(
+          'click',
+          prepararReinstalacion
+        );
+
+
+      configurarInstrucciones();
+
+      configurarDesinstalacion();
+
+      actualizarInterfazInstalacion();
+
+      mostrarDiagnostico();
     }
 
 
-    function detectarPlataforma() {
-      const ua = navigator.userAgent || '';
-      const platform = navigator.platform || '';
+    function actualizarInterfazInstalacion() {
 
-      if (
-        /iPhone|iPad|iPod/i.test(ua) ||
-        (platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-      ) {
-        return 'ios';
-      }
-
-      if (/Android/i.test(ua)) {
-        return 'android';
-      }
-
-      return 'windows';
-    }
+      const boton =
+        document.getElementById(
+          'btnInstalar'
+        );
 
 
-    function configurarTextos(tipo) {
-      const mensaje = document.getElementById('mensajePlataforma');
-      const titulo = document.getElementById('tituloInstrucciones');
-      const lista = document.getElementById('listaInstrucciones');
-
-      let pasos = [];
-
-      if (tipo === 'ios') {
-        mensaje.textContent =
-          'iPhone / iPad detectado. En iOS la instalación se realiza desde Safari.';
-        titulo.textContent = 'Instalación en iPhone / iPad';
-        pasos = [
-          'Abre esta liga en Safari.',
-          'Pulsa el botón Compartir.',
-          'Selecciona “Añadir a pantalla de inicio”.',
-          'Confirma y después abre Consulta AF desde el nuevo icono.'
-        ];
-      } else if (tipo === 'android') {
-        mensaje.textContent =
-          'Android detectado. Chrome puede instalar Consulta AF como aplicación.';
-        titulo.textContent = 'Instalación en Android';
-        pasos = [
-          'Abre esta liga en Chrome.',
-          'Pulsa INSTALAR CONSULTA AF cuando se habilite.',
-          'Si no aparece, abre el menú ⋮ y usa “Instalar aplicación” o “Añadir a pantalla de inicio”.',
-          'Después abre Consulta AF desde su nuevo icono.'
-        ];
-      } else {
-        mensaje.textContent =
-          'Windows detectado. Edge o Chrome pueden instalar Consulta AF en una ventana independiente.';
-        titulo.textContent = 'Instalación en Windows';
-        pasos = [
-          'Abre esta liga en Edge o Chrome.',
-          'Pulsa INSTALAR CONSULTA AF cuando se habilite.',
-          'Si no aparece, usa el menú del navegador y selecciona “Instalar este sitio como aplicación”.',
-          'Después abre Consulta AF desde Inicio, Escritorio o barra de tareas.'
-        ];
-      }
-
-      lista.innerHTML = '';
-
-      pasos.forEach(function(texto) {
-        const item = document.createElement('li');
-        item.textContent = texto;
-        lista.appendChild(item);
-      });
-    }
-
-
-    function actualizarBotonInstalar() {
-      const boton = document.getElementById('btnInstalar');
-      if (!boton) return;
-
-      if (plataforma === 'ios') {
-        boton.textContent = 'CÓMO INSTALAR EN iPHONE / iPAD';
+      if (!boton) {
         return;
       }
 
-      if (eventoInstalacion) {
-        boton.textContent = 'INSTALAR CONSULTA AF';
-      } else {
-        boton.textContent = 'MOSTRAR OPCIONES DE INSTALACIÓN';
+
+      if (
+        entorno.ios
+      ) {
+
+        if (
+          entorno.navegador ===
+          'brave'
+        ) {
+
+          boton.textContent =
+            'CÓMO INSTALAR EN iPHONE / iPAD';
+
+
+          mostrarEstado(
+            'iPhone / iPad detectado en Brave. Brave para iOS no ofrece actualmente una instalación PWA completa desde esta página. Usa Safari o Chrome para agregar Consulta AF a la pantalla de inicio.',
+            'aviso'
+          );
+
+          return;
+        }
+
+
+        boton.textContent =
+          'CÓMO INSTALAR EN iPHONE / iPAD';
+
+
+        mostrarEstado(
+          'iPhone / iPad detectado. La instalación se realiza desde el menú Compartir → Agregar a pantalla de inicio.',
+          'ok'
+        );
+
+        return;
+      }
+
+
+      if (
+        eventoInstalacion
+      ) {
+
+        boton.textContent =
+          'INSTALAR CONSULTA AF';
+
+
+        if (
+          entorno.navegador ===
+          'brave'
+        ) {
+
+          mostrarEstado(
+            'Brave detectado. La aplicación está lista para instalarse.',
+            'ok'
+          );
+        }
+        else {
+
+          mostrarEstado(
+            'La aplicación está lista para instalarse en este navegador.',
+            'ok'
+          );
+        }
+
+
+        return;
+      }
+
+
+      if (
+        pareceInstalada()
+      ) {
+
+        boton.textContent =
+          'PUEDE QUE YA ESTÉ INSTALADA';
+
+
+        mostrarEstado(
+          'Este navegador registra una instalación anterior. Si ya no aparece el icono Consulta AF, usa QUITAR / REINSTALAR APP para restablecer el proceso.',
+          'aviso'
+        );
+
+        return;
+      }
+
+
+      boton.textContent =
+        'MOSTRAR OPCIONES DE INSTALACIÓN';
+
+
+      if (
+        entorno.navegador ===
+        'brave'
+      ) {
+
+        mostrarEstado(
+          'Brave detectado. Si el botón automático no aparece, usa el menú de Brave y selecciona Instalar aplicación o Agregar a pantalla de inicio.',
+          'aviso'
+        );
+      }
+      else {
+
+        mostrarEstado(
+          'El navegador aún no ofreció el instalador automático. Usa VER INSTRUCCIONES. No utilices modo incógnito o privado.',
+          'aviso'
+        );
       }
     }
 
 
     async function solicitarInstalacion() {
-      if (plataforma === 'ios') {
+
+      if (
+        entorno.ios
+      ) {
+
         abrirInstrucciones();
+
         return;
       }
 
-      if (!eventoInstalacion) {
+
+      if (
+        !eventoInstalacion
+      ) {
+
         abrirInstrucciones();
+
         return;
       }
 
-      eventoInstalacion.prompt();
+
+      const evento =
+        eventoInstalacion;
+
+
+      eventoInstalacion =
+        null;
+
 
       try {
-        const resultado = await eventoInstalacion.userChoice;
 
-        if (resultado && resultado.outcome === 'accepted') {
-          document.getElementById('mensajePlataforma').textContent =
-            'Instalación aceptada. Cuando termine, abre Consulta AF desde su nuevo icono.';
+        evento.prompt();
+
+
+        const resultado =
+          await evento.userChoice;
+
+
+        if (
+          resultado &&
+          resultado.outcome ===
+          'accepted'
+        ) {
+
+          marcarInstalada();
+
+
+          mostrarEstado(
+            'Instalación aceptada. Cuando termine, abre Consulta AF desde su nuevo icono.',
+            'ok'
+          );
         }
-      } catch (error) {
+        else {
+
+          mostrarEstado(
+            'La instalación no se completó. Puedes volver a intentarlo o usar las instrucciones manuales.',
+            'aviso'
+          );
+        }
+      }
+      catch (error) {
+
         abrirInstrucciones();
+
+
+        mostrarEstado(
+          'El navegador no pudo abrir el instalador automático. Usa las instrucciones manuales.',
+          'aviso'
+        );
       }
 
-      eventoInstalacion = null;
-      actualizarBotonInstalar();
+
+      actualizarInterfazInstalacion();
     }
 
 
+    // ======================================================
+    // DETECCIÓN DE ENTORNO
+    // ======================================================
+
+    async function detectarEntorno() {
+
+      const ua =
+        String(
+          navigator.userAgent ||
+          ''
+        );
+
+
+      const plataforma =
+        String(
+          navigator.platform ||
+          ''
+        );
+
+
+      const maxTouch =
+        Number(
+          navigator.maxTouchPoints ||
+          0
+        );
+
+
+      const esIOS =
+        /iPhone|iPad|iPod/i.test(
+          ua
+        ) ||
+        (
+          plataforma ===
+          'MacIntel' &&
+          maxTouch >
+          1
+        );
+
+
+      const esAndroid =
+        /Android/i.test(
+          ua
+        );
+
+
+      let esBrave =
+        false;
+
+
+      try {
+
+        esBrave =
+          Boolean(
+            navigator.brave &&
+            typeof navigator.brave.isBrave ===
+              'function' &&
+            await navigator.brave.isBrave()
+          );
+      }
+      catch (error) {}
+
+
+      if (
+        !esBrave &&
+        /Brave/i.test(
+          ua
+        )
+      ) {
+
+        esBrave =
+          true;
+      }
+
+
+      let navegador =
+        'otro';
+
+
+      if (
+        esBrave
+      ) {
+
+        navegador =
+          'brave';
+      }
+      else if (
+        /EdgiOS|EdgA|Edg\//i.test(
+          ua
+        )
+      ) {
+
+        navegador =
+          'edge';
+      }
+      else if (
+        /CriOS/i.test(
+          ua
+        )
+      ) {
+
+        navegador =
+          'chrome';
+      }
+      else if (
+        /FxiOS/i.test(
+          ua
+        )
+      ) {
+
+        navegador =
+          'firefox';
+      }
+      else if (
+        /SamsungBrowser/i.test(
+          ua
+        )
+      ) {
+
+        navegador =
+          'samsung';
+      }
+      else if (
+        /OPR|Opera/i.test(
+          ua
+        )
+      ) {
+
+        navegador =
+          'opera';
+      }
+      else if (
+        /Chrome/i.test(
+          ua
+        )
+      ) {
+
+        navegador =
+          'chrome';
+      }
+      else if (
+        /Safari/i.test(
+          ua
+        )
+      ) {
+
+        navegador =
+          'safari';
+      }
+
+
+      let sistema =
+        'otro';
+
+
+      if (
+        esIOS
+      ) {
+
+        sistema =
+          'ios';
+      }
+      else if (
+        esAndroid
+      ) {
+
+        sistema =
+          'android';
+      }
+      else if (
+        /Windows/i.test(
+          ua
+        )
+      ) {
+
+        sistema =
+          'windows';
+      }
+      else if (
+        /Macintosh|Mac OS X/i.test(
+          ua
+        )
+      ) {
+
+        sistema =
+          'mac';
+      }
+      else if (
+        /Linux/i.test(
+          ua
+        )
+      ) {
+
+        sistema =
+          'linux';
+      }
+
+
+      return {
+        sistema:
+          sistema,
+
+        navegador:
+          navegador,
+
+        brave:
+          esBrave,
+
+        ios:
+          esIOS,
+
+        android:
+          esAndroid,
+
+        escritorio:
+          !esIOS &&
+          !esAndroid
+      };
+    }
+
+
+    // ======================================================
+    // INSTRUCCIONES DE INSTALACIÓN
+    // ======================================================
+
+    function configurarInstrucciones() {
+
+      const titulo =
+        document.getElementById(
+          'tituloInstrucciones'
+        );
+
+
+      const lista =
+        document.getElementById(
+          'listaInstrucciones'
+        );
+
+
+      const nota =
+        document.getElementById(
+          'notaInstrucciones'
+        );
+
+
+      let pasos = [];
+
+      let textoNota =
+        'Si no aparece la opción de instalación, confirma que no estés en modo incógnito o privado y que el navegador esté actualizado.';
+
+
+      if (
+        entorno.ios
+      ) {
+
+        titulo.textContent =
+          'Instalación en iPhone / iPad';
+
+
+        if (
+          entorno.navegador ===
+          'brave'
+        ) {
+
+          pasos = [
+            'Copia o vuelve a abrir esta liga en Safari o Chrome.',
+            'En Safari o Chrome, pulsa Compartir.',
+            'Selecciona “Agregar a pantalla de inicio”.',
+            'Activa “Abrir como app web” cuando aparezca esa opción.',
+            'Pulsa Agregar y después abre Consulta AF desde el nuevo icono.'
+          ];
+
+
+          textoNota =
+            'Brave para iOS no ofrece actualmente el mismo flujo completo de instalación PWA. La aplicación sí puede instalarse en el iPhone usando Safari; Chrome para iOS también dispone de Agregar a pantalla de inicio.';
+        }
+        else {
+
+          pasos = [
+            'Pulsa Compartir en el navegador.',
+            'Selecciona “Agregar a pantalla de inicio”.',
+            'Activa “Abrir como app web” si el sistema muestra esa opción.',
+            'Pulsa Agregar.',
+            'Abre Consulta AF desde el nuevo icono de la pantalla de inicio.'
+          ];
+        }
+      }
+      else if (
+        entorno.android
+      ) {
+
+        titulo.textContent =
+          entorno.navegador ===
+          'brave'
+            ? 'Instalación en Android con Brave'
+            : 'Instalación en Android';
+
+
+        pasos = [
+          'Usa una pestaña normal; no utilices modo incógnito o privado.',
+          'Pulsa INSTALAR CONSULTA AF si el navegador habilita el instalador automático.',
+          'Si no aparece, abre el menú ⋮ del navegador.',
+          'Selecciona “Instalar aplicación”, “Instalar app” o “Agregar a pantalla de inicio”, según el navegador.',
+          'Confirma y abre Consulta AF desde su nuevo icono.'
+        ];
+      }
+      else {
+
+        titulo.textContent =
+          entorno.navegador ===
+          'brave'
+            ? 'Instalación en Brave'
+            : 'Instalación en computadora';
+
+
+        pasos = [
+          'Usa una ventana normal del navegador; no utilices incógnito o invitado.',
+          'Pulsa INSTALAR CONSULTA AF si se habilita.',
+          'Si no aparece, busca el icono de instalación en la barra de direcciones.',
+          'También puedes abrir el menú del navegador y elegir “Instalar página como app”, “Instalar aplicación” o equivalente.',
+          'Después abre Consulta AF desde Inicio, Aplicaciones, Escritorio o el acceso creado por el navegador.'
+        ];
+      }
+
+
+      lista.innerHTML =
+        '';
+
+
+      pasos.forEach(
+        function(texto) {
+
+          const item =
+            document.createElement(
+              'li'
+            );
+
+
+          item.textContent =
+            texto;
+
+
+          lista.appendChild(
+            item
+          );
+        }
+      );
+
+
+      nota.textContent =
+        textoNota;
+    }
+
+
+    function configurarDesinstalacion() {
+
+      const lista =
+        document.getElementById(
+          'listaDesinstalacion'
+        );
+
+
+      let pasos = [];
+
+
+      if (
+        entorno.ios
+      ) {
+
+        pasos = [
+          'Ve a la pantalla de inicio del iPhone o iPad.',
+          'Mantén presionado el icono Consulta AF.',
+          'Elige la opción para quitar o eliminar el acceso web.',
+          'Vuelve a esta página en Safari o Chrome.',
+          'Pulsa “YA LA QUITÉ — PREPARAR REINSTALACIÓN” y después instala nuevamente.'
+        ];
+      }
+      else if (
+        entorno.android
+      ) {
+
+        pasos = [
+          'Mantén presionado el icono Consulta AF y abre Información de la app, o entra a Ajustes → Aplicaciones.',
+          'Selecciona Consulta AF y confirma Desinstalar / Quitar.',
+          'Vuelve a esta página en Chrome o Brave en una pestaña normal.',
+          'Pulsa “YA LA QUITÉ — PREPARAR REINSTALACIÓN”.',
+          'Instala nuevamente cuando el navegador vuelva a ofrecer la opción.'
+        ];
+      }
+      else {
+
+        pasos = [
+          'Abre Consulta AF instalada o entra a la administración de aplicaciones del navegador/sistema.',
+          'Selecciona la opción Desinstalar / Quitar Consulta AF.',
+          'Cierra la aplicación instalada.',
+          'Vuelve a esta página en una ventana normal de Chrome, Edge o Brave.',
+          'Pulsa “YA LA QUITÉ — PREPARAR REINSTALACIÓN” y vuelve a instalar.'
+        ];
+      }
+
+
+      lista.innerHTML =
+        '';
+
+
+      pasos.forEach(
+        function(texto) {
+
+          const item =
+            document.createElement(
+              'li'
+            );
+
+
+          item.textContent =
+            texto;
+
+
+          lista.appendChild(
+            item
+          );
+        }
+      );
+    }
+
+
+    // ======================================================
+    // GESTIÓN DE ESTADO LOCAL
+    // ======================================================
+
+    function marcarInstalada() {
+
+      try {
+
+        localStorage.setItem(
+          CLAVE_INSTALADA,
+          '1'
+        );
+      }
+      catch (error) {}
+    }
+
+
+    function pareceInstalada() {
+
+      try {
+
+        return (
+          localStorage.getItem(
+            CLAVE_INSTALADA
+          ) ===
+          '1'
+        );
+      }
+      catch (error) {
+
+        return false;
+      }
+    }
+
+
+    function prepararReinstalacion() {
+
+      try {
+
+        localStorage.removeItem(
+          CLAVE_INSTALADA
+        );
+      }
+      catch (error) {}
+
+
+      eventoInstalacion =
+        null;
+
+
+      mostrarEstado(
+        'Estado local restablecido. Recargando para volver a verificar la instalación…',
+        'ok'
+      );
+
+
+      setTimeout(
+        function() {
+
+          window.location.reload();
+        },
+        700
+      );
+    }
+
+
+    // ======================================================
+    // PANELES
+    // ======================================================
+
     function mostrarOcultarInstrucciones() {
-      document.getElementById('panelInstrucciones')
-        .classList.toggle('oculto');
+
+      document
+        .getElementById(
+          'panelInstrucciones'
+        )
+        .classList
+        .toggle(
+          'oculto'
+        );
     }
 
 
     function abrirInstrucciones() {
-      document.getElementById('panelInstrucciones')
-        .classList.remove('oculto');
+
+      document
+        .getElementById(
+          'panelInstrucciones'
+        )
+        .classList
+        .remove(
+          'oculto'
+        );
     }
 
+
+    function mostrarOcultarGestion() {
+
+      document
+        .getElementById(
+          'panelGestion'
+        )
+        .classList
+        .toggle(
+          'oculto'
+        );
+    }
+
+
+    // ======================================================
+    // ESTADO / DIAGNÓSTICO
+    // ======================================================
+
+    function mostrarEstado(
+      texto,
+      tipo
+    ) {
+
+      const elemento =
+        document.getElementById(
+          'mensajePlataforma'
+        );
+
+
+      if (!elemento) {
+        return;
+      }
+
+
+      elemento.className =
+        'estado' +
+        (
+          tipo
+            ? ' ' + tipo
+            : ''
+        );
+
+
+      elemento.textContent =
+        texto || '';
+    }
+
+
+    function mostrarDiagnostico() {
+
+      const elemento =
+        document.getElementById(
+          'diagnostico'
+        );
+
+
+      if (!elemento) {
+        return;
+      }
+
+
+      const partes = [
+        'Sistema: ' +
+          entorno.sistema,
+
+        'Navegador: ' +
+          entorno.navegador,
+
+        'Modo app: ' +
+          (
+            estaEnModoApp()
+              ? 'sí'
+              : 'no'
+          ),
+
+        'Service Worker: ' +
+          (
+            'serviceWorker' in navigator
+              ? 'compatible'
+              : 'no disponible'
+          )
+      ];
+
+
+      elemento.textContent =
+        partes.join(
+          ' · '
+        );
+    }
+
+
+    // ======================================================
+    // SERVICE WORKER
+    // ======================================================
 
     function registrarServiceWorker() {
-      if (!('serviceWorker' in navigator)) return;
 
-      window.addEventListener('load', function() {
-        navigator.serviceWorker
-          .register('./sw.js')
-          .catch(function() {
-            // Puede seguir operando como página aunque falle el registro.
-          });
-      });
+      if (
+        !(
+          'serviceWorker' in
+          navigator
+        )
+      ) {
+
+        return;
+      }
+
+
+      window.addEventListener(
+        'load',
+        function() {
+
+          navigator.serviceWorker
+            .register(
+              './sw.js',
+              {
+                scope:
+                  './',
+
+                updateViaCache:
+                  'none'
+              }
+            )
+            .then(
+              function(registro) {
+
+                try {
+
+                  registro.update();
+                }
+                catch (error) {}
+              }
+            )
+            .catch(
+              function() {
+
+                // La página puede seguir funcionando aunque
+                // falle temporalmente el registro.
+              }
+            );
+        }
+      );
     }
+
   </script>
 
 </body>
